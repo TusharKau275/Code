@@ -1,0 +1,96 @@
+{
+  "models": {
+    "Random Forest": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          150,
+          0
+        ],
+        [
+          0,
+          150
+        ]
+      ],
+      "tn": 150,
+      "fp": 0,
+      "fn": 0,
+      "tp": 150
+    },
+    "Logistic Regression": {
+      "accuracy": 0.9967,
+      "precision": 1.0,
+      "recall": 0.9933,
+      "f1_score": 0.9967,
+      "confusion_matrix": [
+        [
+          150,
+          0
+        ],
+        [
+          1,
+          149
+        ]
+      ],
+      "tn": 150,
+      "fp": 0,
+      "fn": 1,
+      "tp": 149
+    },
+    "Naive Bayes": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          150,
+          0
+        ],
+        [
+          0,
+          150
+        ]
+      ],
+      "tn": 150,
+      "fp": 0,
+      "fn": 0,
+      "tp": 150
+    },
+    "Neural Network (MLP)": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          150,
+          0
+        ],
+        [
+          0,
+          150
+        ]
+      ],
+      "tn": 150,
+      "fp": 0,
+      "fn": 0,
+      "tp": 150
+    }
+  },
+  "test_size": 300,
+  "train_size": 900,
+  "total_emails": 1200,
+  "feature_count": 1302,
+  "meta_cols": [
+    "num_links",
+    "num_exclamations",
+    "has_urgent_words",
+    "suspicious_tld",
+    "subject_len",
+    "body_len"
+  ]
+}

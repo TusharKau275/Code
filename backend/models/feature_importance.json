@@ -1,0 +1,82 @@
+[
+  {
+    "feature": "writing",
+    "importance": 0.13218
+  },
+  {
+    "feature": "writing because",
+    "importance": 0.09681
+  },
+  {
+    "feature": "body_len",
+    "importance": 0.06734
+  },
+  {
+    "feature": "because",
+    "importance": 0.06268
+  },
+  {
+    "feature": "subject_len",
+    "importance": 0.0336
+  },
+  {
+    "feature": "has_urgent_words",
+    "importance": 0.02919
+  },
+  {
+    "feature": "suspicious_tld",
+    "importance": 0.02645
+  },
+  {
+    "feature": "account",
+    "importance": 0.02307
+  },
+  {
+    "feature": "confirm",
+    "importance": 0.0198
+  },
+  {
+    "feature": "let",
+    "importance": 0.01734
+  },
+  {
+    "feature": "urltoken",
+    "importance": 0.01396
+  },
+  {
+    "feature": "payment",
+    "importance": 0.0106
+  },
+  {
+    "feature": "num_links",
+    "importance": 0.01055
+  },
+  {
+    "feature": "up",
+    "importance": 0.01006
+  },
+  {
+    "feature": "if",
+    "importance": 0.0097
+  },
+  {
+    "feature": "meeting",
+    "importance": 0.00858
+  },
+  {
+    "feature": "device",
+    "importance": 0.00787
+  },
+  {
+    "feature": "log",
+    "importance": 0.00751
+  },
+  {
+    "feature": "required",
+    "importance": 0.00744
+  },
+  {
+    "feature": "reply email",
+    "importance": 0.0073
+  }
+]
