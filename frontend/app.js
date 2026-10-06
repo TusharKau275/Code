@@ -102,6 +102,7 @@ function initTabs() {
       if (panel) {
         panel.classList.add("active");
         panel.hidden = false;
+        window.scrollTo({ top: 0, behavior: "instant" });
       }
     });
   });

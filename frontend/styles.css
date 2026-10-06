@@ -1514,15 +1514,15 @@ body.cyber-theme {
 }
 
 .benchmark-table th {
-  padding: 0.85rem 1rem;
+  padding: 0.95rem 1rem;
   font-family: var(--font-display);
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-sub);
-  border-bottom: 1px solid var(--border-subtle);
-  background: rgba(15, 23, 42, 0.5);
+  color: #94a3b8;
+  border-bottom: 1px solid var(--border-medium);
+  background: rgba(15, 23, 42, 0.85);
 }
 
 .benchmark-table td {
