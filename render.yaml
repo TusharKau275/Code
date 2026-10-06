@@ -2,7 +2,7 @@ services:
   - type: web
     name: phishguard-ai
     env: python
-    buildCommand: "pip install -r requirements.txt && python backend/train_and_save_models.py"
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
     plan: free
     healthCheckPath: /api/health
