@@ -1,48 +1,43 @@
 /**
- * PhishGuard AI - Frontend Application Logic
- * Integrates with FastAPI backend for real-time NLP phishing detection,
- * model benchmarking, batch scanning, and developer documentation.
+ * PhishGuard AI — Defense Engine Frontend Logic
+ * Interactive Scanner, Multi-Model Consensus, and Benchmarks Leaderboard
  */
 
-// Global State
 const state = {
   samples: [],
   benchmarkData: null,
   activeScanResult: null,
   rawEmailText: "",
   inspectorMode: "highlight",
-  batchResults: [],
-  selectedCodeLang: "curl"
 };
 
-// API Base URL - empty string for same origin, fallback to localhost:8000
-const API_BASE = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
-  ? window.location.origin
-  : "";
+const API_BASE =
+  window.location.origin.includes("localhost") ||
+  window.location.origin.includes("127.0.0.1")
+    ? window.location.origin
+    : "";
 
-// DOM Elements Cache
 const DOM = {};
 
 document.addEventListener("DOMContentLoaded", () => {
-  initDOMElements();
+  cacheDom();
   initTabs();
-  initFormListeners();
+  initInputs();
   initInspectorTabs();
-  initBatchScanner();
-  initCodeGenerator();
-  checkSystemHealth();
-  fetchSampleEmails();
-  fetchModelBenchmarks();
+  checkHealth();
+  fetchSamples();
+  fetchBenchmarks();
 });
 
-function initDOMElements() {
-  DOM.statusPill = document.getElementById("systemStatusPill");
-  DOM.statusDot = DOM.statusPill?.querySelector(".status-dot");
+/* ==========================================================================
+   DOM Caching
+   ========================================================================== */
+function cacheDom() {
+  DOM.statusDot = document.getElementById("statusDot");
   DOM.statusText = document.getElementById("systemStatusText");
-  DOM.navTabs = document.querySelectorAll(".nav-tab");
-  DOM.viewPanels = document.querySelectorAll(".view-panel");
+  DOM.navBtns = document.querySelectorAll(".nav-btn");
+  DOM.views = document.querySelectorAll(".view-panel");
 
-  // Form
   DOM.emailForm = document.getElementById("emailScanForm");
   DOM.modelSelect = document.getElementById("modelSelect");
   DOM.inputSender = document.getElementById("inputSender");
@@ -52,16 +47,17 @@ function initDOMElements() {
   DOM.subjectCharCount = document.getElementById("subjectCharCount");
   DOM.bodyCharCount = document.getElementById("bodyCharCount");
   DOM.btnAnalyze = document.getElementById("btnAnalyze");
+  DOM.btnScanText = document.getElementById("btnScanText");
   DOM.btnClear = document.getElementById("btnClear");
   DOM.btnRandomSample = document.getElementById("btnRandomSample");
   DOM.samplesContainer = document.getElementById("samplesContainer");
+  DOM.liveScanTag = document.getElementById("liveScanTag");
 
-  // Results
-  DOM.resultsCard = document.getElementById("resultsCard");
   DOM.resultsEmpty = document.getElementById("resultsEmpty");
   DOM.resultsActive = document.getElementById("resultsActive");
   DOM.verdictBanner = document.getElementById("verdictBanner");
   DOM.threatBadge = document.getElementById("threatBadge");
+  DOM.confidencePill = document.getElementById("confidencePill");
   DOM.threatHeadline = document.getElementById("threatHeadline");
   DOM.threatRecommendation = document.getElementById("threatRecommendation");
   DOM.gaugeFill = document.getElementById("gaugeFill");
@@ -73,400 +69,405 @@ function initDOMElements() {
   DOM.btnInspHighlight = document.getElementById("btnInspHighlight");
   DOM.btnInspRaw = document.getElementById("btnInspRaw");
 
-  // Benchmarks
   DOM.bmTotalEmails = document.getElementById("bmTotalEmails");
   DOM.bmFeatureCount = document.getElementById("bmFeatureCount");
   DOM.bmTestSize = document.getElementById("bmTestSize");
   DOM.leaderboardBody = document.getElementById("leaderboardBody");
   DOM.confusionGrid = document.getElementById("confusionGrid");
   DOM.featureBarsList = document.getElementById("featureBarsList");
-
-  // Batch
-  DOM.csvDropzone = document.getElementById("csvDropzone");
-  DOM.csvFileInput = document.getElementById("csvFileInput");
-  DOM.btnLoadSampleCsv = document.getElementById("btnLoadSampleCsv");
-  DOM.batchModelSelect = document.getElementById("batchModelSelect");
-  DOM.batchTotalCount = document.getElementById("batchTotalCount");
-  DOM.batchPhishCount = document.getElementById("batchPhishCount");
-  DOM.batchLegitCount = document.getElementById("batchLegitCount");
-  DOM.batchAvgScore = document.getElementById("batchAvgScore");
-  DOM.batchTableBody = document.getElementById("batchTableBody");
-  DOM.batchRowCountTag = document.getElementById("batchRowCountTag");
-  DOM.batchSearchInput = document.getElementById("batchSearchInput");
-  DOM.btnExportCsv = document.getElementById("btnExportCsv");
-
-  // Code Gen
-  DOM.codeSnippetDisplay = document.getElementById("codeSnippetDisplay");
-  DOM.btnCopyCode = document.getElementById("btnCopyCode");
-  DOM.snipTabs = document.querySelectorAll(".snip-tab");
 }
 
 /* ==========================================================================
-   Navigation Tabs
+   Tab Navigation
    ========================================================================== */
 function initTabs() {
-  DOM.navTabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      const targetView = tab.getAttribute("data-view");
-
-      DOM.navTabs.forEach(t => {
-        t.classList.remove("active");
-        t.setAttribute("aria-selected", "false");
+  DOM.navBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.dataset.view;
+      DOM.navBtns.forEach((b) => {
+        b.classList.remove("active");
+        b.setAttribute("aria-selected", "false");
       });
-      tab.classList.add("active");
-      tab.setAttribute("aria-selected", "true");
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
 
-      DOM.viewPanels.forEach(panel => {
-        panel.classList.remove("active");
-        panel.hidden = true;
+      DOM.views.forEach((v) => {
+        v.classList.remove("active");
+        v.hidden = true;
       });
 
-      const activePanel = document.getElementById(`view${capitalize(targetView)}`);
-      if (activePanel) {
-        activePanel.classList.add("active");
-        activePanel.hidden = false;
+      const panel = document.getElementById(
+        `view${view.charAt(0).toUpperCase() + view.slice(1)}`
+      );
+      if (panel) {
+        panel.classList.add("active");
+        panel.hidden = false;
       }
     });
   });
 }
 
-function capitalize(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
+/* ==========================================================================
+   Input Listeners & Counters
+   ========================================================================== */
+function initInputs() {
+  // Sender input: extract domain dynamically
+  DOM.inputSender.addEventListener("input", () => {
+    updateSenderDomain(DOM.inputSender.value);
+  });
+
+  // Subject line char count
+  DOM.inputSubject.addEventListener("input", () => {
+    DOM.subjectCharCount.textContent = `${DOM.inputSubject.value.length} chars`;
+  });
+
+  // Body content stats (words & chars)
+  DOM.inputBody.addEventListener("input", () => {
+    updateBodyCount(DOM.inputBody.value);
+  });
+
+  // Form Submission
+  DOM.emailForm.addEventListener("submit", handleScanSubmit);
+
+  // Clear Button
+  DOM.btnClear.addEventListener("click", resetScanner);
+
+  // Random Sample
+  DOM.btnRandomSample.addEventListener("click", loadRandomSample);
 }
 
-/* ==========================================================================
-   Health & Initialization
-   ========================================================================== */
-async function checkSystemHealth() {
-  try {
-    const res = await fetch(`${API_BASE}/api/health`);
-    if (!res.ok) throw new Error("API offline");
-    const data = await res.json();
-    if (DOM.statusDot) {
-      DOM.statusDot.className = "status-dot online";
-    }
-    if (DOM.statusText) {
-      DOM.statusText.textContent = `Online • ${data.models_loaded.length} Models Active`;
-    }
-  } catch (err) {
-    if (DOM.statusDot) {
-      DOM.statusDot.className = "status-dot pulsing";
-    }
-    if (DOM.statusText) {
-      DOM.statusText.textContent = "Connecting to Backend...";
-    }
+function updateSenderDomain(senderVal) {
+  const match = senderVal.match(/@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+  if (match && match[1]) {
+    DOM.parsedDomainTag.textContent = match[1];
+    DOM.parsedDomainTag.classList.add("has-domain");
+  } else {
+    DOM.parsedDomainTag.textContent = "No domain detected";
+    DOM.parsedDomainTag.classList.remove("has-domain");
   }
 }
 
-async function fetchSampleEmails() {
+function updateBodyCount(text) {
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  DOM.bodyCharCount.textContent = `${words} words • ${chars} chars`;
+}
+
+function resetScanner() {
+  DOM.emailForm.reset();
+  updateSenderDomain("");
+  DOM.subjectCharCount.textContent = "0 chars";
+  DOM.bodyCharCount.textContent = "0 words • 0 chars";
+  DOM.resultsActive.classList.add("hidden");
+  DOM.resultsEmpty.style.display = "flex";
+  DOM.liveScanTag.textContent = "Ready";
+  state.activeScanResult = null;
+}
+
+/* ==========================================================================
+   Inspector View Mode
+   ========================================================================== */
+function initInspectorTabs() {
+  DOM.btnInspHighlight.addEventListener("click", () => {
+    state.inspectorMode = "highlight";
+    DOM.btnInspHighlight.classList.add("active");
+    DOM.btnInspRaw.classList.remove("active");
+    renderInspectorContent();
+  });
+
+  DOM.btnInspRaw.addEventListener("click", () => {
+    state.inspectorMode = "raw";
+    DOM.btnInspRaw.classList.add("active");
+    DOM.btnInspHighlight.classList.remove("active");
+    renderInspectorContent();
+  });
+}
+
+/* ==========================================================================
+   Backend Health Check
+   ========================================================================== */
+async function checkHealth() {
+  try {
+    const res = await fetch(`${API_BASE}/api/health`);
+    if (res.ok) {
+      const data = await res.json();
+      DOM.statusDot.style.background = "var(--color-safe)";
+      DOM.statusDot.style.boxShadow = "0 0 10px var(--color-safe)";
+      const modelCount = data.models_loaded ? data.models_loaded.length : 4;
+      DOM.statusText.textContent = `Online • ${modelCount} Models`;
+    } else {
+      throw new Error("Health check non-200");
+    }
+  } catch (err) {
+    console.warn("Backend offline or error:", err);
+    DOM.statusDot.style.background = "var(--color-warning)";
+    DOM.statusDot.style.boxShadow = "0 0 10px var(--color-warning)";
+    DOM.statusText.textContent = "Degraded (Offline)";
+  }
+}
+
+/* ==========================================================================
+   Samples Loader
+   ========================================================================== */
+async function fetchSamples() {
   try {
     const res = await fetch(`${API_BASE}/api/samples`);
     if (!res.ok) return;
     const data = await res.json();
     state.samples = data.samples || [];
     renderSampleChips(state.samples);
-  } catch (e) {
-    console.warn("Could not load sample emails:", e);
+  } catch (err) {
+    console.error("Failed to load sample emails:", err);
   }
 }
 
 function renderSampleChips(samples) {
-  if (!DOM.samplesContainer || !samples.length) return;
   DOM.samplesContainer.innerHTML = "";
-
-  samples.forEach(sample => {
-    const btn = document.createElement("button");
+  samples.forEach((sample) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
     const isPhish = sample.expected_label === "phishing";
-    btn.className = `sample-chip ${isPhish ? "phish" : "legit"}`;
-    btn.setAttribute("type", "button");
-    btn.innerHTML = `${isPhish ? "🚨" : "🛡️"} ${sample.title}`;
-    btn.addEventListener("click", () => populateFormWithSample(sample));
-    DOM.samplesContainer.appendChild(btn);
+    chip.className = `sample-chip ${isPhish ? "chip-phish" : "chip-legit"}`;
+
+    chip.innerHTML = `
+      <span class="chip-tag ${isPhish ? "phish" : "legit"}">${isPhish ? "Phish" : "Legit"}</span>
+      <span class="chip-title">${escapeHtml(sample.title)}</span>
+    `;
+
+    chip.addEventListener("click", () => loadSample(sample));
+    DOM.samplesContainer.appendChild(chip);
   });
 }
 
-function populateFormWithSample(sample) {
-  if (!sample) return;
+function loadSample(sample) {
   DOM.inputSender.value = sample.sender;
   DOM.inputSubject.value = sample.subject;
   DOM.inputBody.value = sample.body;
-  updateFormCounters();
+
+  updateSenderDomain(sample.sender);
+  DOM.subjectCharCount.textContent = `${sample.subject.length} chars`;
+  updateBodyCount(sample.body);
+
+  // Smooth pulse feedback
+  DOM.inputBody.focus();
+}
+
+function loadRandomSample() {
+  if (!state.samples.length) return;
+  const rand = state.samples[Math.floor(Math.random() * state.samples.length)];
+  loadSample(rand);
 }
 
 /* ==========================================================================
-   Form Handling & Domain Parser
+   Scan Submission & Execution
    ========================================================================== */
-function initFormListeners() {
-  DOM.inputSender?.addEventListener("input", updateFormCounters);
-  DOM.inputSubject?.addEventListener("input", updateFormCounters);
-  DOM.inputBody?.addEventListener("input", updateFormCounters);
+async function handleScanSubmit(e) {
+  e.preventDefault();
 
-  DOM.btnClear?.addEventListener("click", () => {
-    DOM.emailForm?.reset();
-    updateFormCounters();
-    showEmptyResults();
-  });
+  const sender = DOM.inputSender.value.trim();
+  const subject = DOM.inputSubject.value.trim();
+  const body = DOM.inputBody.value.trim();
+  const model = DOM.modelSelect.value;
 
-  DOM.btnRandomSample?.addEventListener("click", () => {
-    if (!state.samples.length) return;
-    const randomSample = state.samples[Math.floor(Math.random() * state.samples.length)];
-    populateFormWithSample(randomSample);
-  });
-
-  DOM.emailForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    await handleAnalyzeSubmit();
-  });
-}
-
-function updateFormCounters() {
-  const sender = DOM.inputSender?.value.trim() || "";
-  const subject = DOM.inputSubject?.value || "";
-  const body = DOM.inputBody?.value || "";
-
-  // Parse domain
-  let domain = "";
-  if (sender.includes("@")) {
-    domain = sender.split("@").pop().trim();
-  } else if (sender) {
-    domain = sender;
-  }
-  if (DOM.parsedDomainTag) {
-    if (domain) {
-      DOM.parsedDomainTag.textContent = `@${domain}`;
-      DOM.parsedDomainTag.classList.add("active");
-    } else {
-      DOM.parsedDomainTag.textContent = "No domain parsed";
-      DOM.parsedDomainTag.classList.remove("active");
-    }
-  }
-
-  // Chars
-  if (DOM.subjectCharCount) DOM.subjectCharCount.textContent = `${subject.length} chars`;
-  if (DOM.bodyCharCount) DOM.bodyCharCount.textContent = `${body.length} chars`;
-}
-
-async function handleAnalyzeSubmit() {
-  const sender = DOM.inputSender?.value.trim();
-  const subject = DOM.inputSubject?.value.trim();
-  const body = DOM.inputBody?.value.trim();
-  const modelName = DOM.modelSelect?.value || "Random Forest";
-
-  if (!subject && !body) {
-    alert("Please provide at least a subject or body for analysis.");
+  if (!sender || !subject || !body) {
+    alert("Please complete the Sender, Subject, and Body fields before scanning.");
     return;
   }
 
   // Set loading state
-  DOM.btnAnalyze?.classList.add("loading");
-  if (DOM.btnAnalyze) DOM.btnAnalyze.disabled = true;
+  DOM.btnAnalyze.classList.add("loading");
+  DOM.btnScanText.textContent = "Analyzing Threat Vector…";
+  DOM.liveScanTag.textContent = "Scanning…";
 
   try {
-    const payload = {
-      sender: sender || "unknown@unverified.org",
-      subject: subject || "",
-      body: body || "",
-      model_name: modelName
-    };
-
     const res = await fetch(`${API_BASE}/api/predict`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        sender,
+        subject,
+        body,
+        model_name: model,
+      }),
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Analysis failed");
+      throw new Error(`Server returned HTTP ${res.status}`);
     }
 
-    const result = await res.json();
-    state.activeScanResult = result;
+    const data = await res.json();
+    state.activeScanResult = data;
     state.rawEmailText = `${subject}\n\n${body}`;
-    renderScanResults(result);
+
+    renderResults(data);
   } catch (err) {
     console.error("Scan error:", err);
-    alert(`Detection error: ${err.message}`);
+    alert("Failed to analyze email. Ensure the backend server is running.");
   } finally {
-    DOM.btnAnalyze?.classList.remove("loading");
-    if (DOM.btnAnalyze) DOM.btnAnalyze.disabled = false;
+    DOM.btnAnalyze.classList.remove("loading");
+    DOM.btnScanText.textContent = "Analyze Email Threat";
+    DOM.liveScanTag.textContent = "Analysis Complete";
   }
 }
 
 /* ==========================================================================
-   Results Rendering & Gauge Animation
+   Render Threat Results
    ========================================================================== */
-function showEmptyResults() {
-  if (DOM.resultsEmpty) DOM.resultsEmpty.classList.remove("hidden");
-  if (DOM.resultsActive) DOM.resultsActive.classList.add("hidden");
-}
-
-function renderScanResults(result) {
-  if (!DOM.resultsActive || !DOM.resultsEmpty) return;
-
-  DOM.resultsEmpty.classList.add("hidden");
+function renderResults(data) {
+  DOM.resultsEmpty.style.display = "none";
   DOM.resultsActive.classList.remove("hidden");
 
-  const isPhish = result.is_phishing;
-  const score = result.risk_score;
-  const badgeClass = result.risk_badge || (isPhish ? "danger" : "safe");
-
-  // Verdict Banner
-  if (DOM.verdictBanner) {
-    DOM.verdictBanner.className = `verdict-banner ${badgeClass}`;
-  }
-  if (DOM.threatBadge) {
-    DOM.threatBadge.textContent = result.risk_level.toUpperCase();
-  }
-  if (DOM.threatHeadline) {
-    DOM.threatHeadline.textContent = isPhish ? "Phishing Email Detected" : "Legitimate Email Verified";
-  }
-  if (DOM.threatRecommendation) {
-    DOM.threatRecommendation.textContent = result.recommendation;
+  // 1. Verdict Banner Theme & Content
+  DOM.verdictBanner.classList.remove("danger", "warning", "safe");
+  if (data.is_phishing) {
+    DOM.verdictBanner.classList.add(data.risk_score >= 75 ? "danger" : "warning");
+    DOM.threatBadge.textContent = data.risk_level.toUpperCase();
+    DOM.threatHeadline.textContent = "Phishing Attack Detected";
+  } else {
+    DOM.verdictBanner.classList.add("safe");
+    DOM.threatBadge.textContent = "LEGITIMATE / SAFE";
+    DOM.threatHeadline.textContent = "Clean Email Verified";
   }
 
-  // Animate Gauge
-  animateGauge(score);
+  DOM.confidencePill.textContent = `${data.confidence_percent}% Confidence`;
+  DOM.threatRecommendation.textContent = data.recommendation;
 
-  // Model Consensus Bars
-  renderModelBars(result.all_models);
-  if (DOM.consensusTag) {
-    const consensus = result.consensus;
-    DOM.consensusTag.textContent = `${consensus.phish_votes} of ${consensus.total_models} Models Flagged Threat`;
-  }
+  // 2. Animate Circular Threat Gauge
+  const score = Math.min(100, Math.max(0, data.risk_score));
+  animateGauge(score, data.is_phishing);
 
-  // Signals Grid
-  renderSignals(result.signals);
+  // 3. Multi-Model Consensus Breakdown
+  renderModelConsensus(data);
 
-  // Inspector View
-  renderInspector();
+  // 4. Heuristic Signals
+  renderSignals(data.signals || []);
+
+  // 5. Explainability Text Inspector
+  renderInspectorContent();
 }
 
-function animateGauge(score) {
-  const radius = 50;
-  const circumference = 2 * Math.PI * radius; // 314.15
-  const offset = circumference - (score / 100) * circumference;
+function animateGauge(targetScore, isPhishing) {
+  const circumference = 314.15; // 2 * PI * 50
+  const offset = circumference - (targetScore / 100) * circumference;
 
-  if (DOM.gaugeFill) {
-    DOM.gaugeFill.style.strokeDashoffset = offset;
+  DOM.gaugeFill.style.strokeDashoffset = offset;
+  if (isPhishing) {
+    DOM.gaugeFill.style.stroke = targetScore >= 75 ? "var(--color-danger)" : "var(--color-warning)";
+  } else {
+    DOM.gaugeFill.style.stroke = "var(--color-safe)";
   }
 
-  // Number counter animation
+  // Count up numeric value smoothly
   let current = 0;
-  const duration = 600;
-  const stepTime = 15;
-  const steps = duration / stepTime;
-  const increment = score / steps;
+  const duration = 800;
+  const startTime = performance.now();
 
-  const timer = setInterval(() => {
-    current += increment;
-    if (current >= score) {
-      current = score;
-      clearInterval(timer);
+  function updateCount(time) {
+    const elapsed = time - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out quart
+    const ease = 1 - Math.pow(1 - progress, 4);
+    const val = Math.round(targetScore * ease);
+    DOM.gaugeScoreValue.textContent = val;
+
+    if (progress < 1) {
+      requestAnimationFrame(updateCount);
+    } else {
+      DOM.gaugeScoreValue.textContent = targetScore;
     }
-    if (DOM.gaugeScoreValue) {
-      DOM.gaugeScoreValue.textContent = Math.round(current);
-    }
-  }, stepTime);
+  }
+
+  requestAnimationFrame(updateCount);
 }
 
-function renderModelBars(allModels) {
-  if (!DOM.modelBarsGrid || !allModels) return;
+function renderModelConsensus(data) {
+  const allModels = data.all_models || {};
+  const consensus = data.consensus || { phish_votes: 0, total_models: 4 };
+
+  DOM.consensusTag.textContent = `${consensus.phish_votes} of ${consensus.total_models} Models Flagged Phishing`;
+
   DOM.modelBarsGrid.innerHTML = "";
+  Object.keys(allModels).forEach((modelName) => {
+    const m = allModels[modelName];
+    const isPhish = m.is_phishing;
+    const prob = Math.round(m.phishing_probability * 100);
 
-  for (const [name, data] of Object.entries(allModels)) {
-    const item = document.createElement("div");
-    item.className = "model-bar-item";
-    const isPhish = data.is_phishing;
-    const prob = Math.round(data.phishing_probability * 100);
+    const tile = document.createElement("div");
+    tile.className = "model-stat-tile";
 
-    item.innerHTML = `
-      <div class="mb-header">
-        <span class="mb-name">${name}</span>
-        <span class="mb-verdict ${isPhish ? "phish" : "legit"}">
-          ${isPhish ? "PHISHING" : "LEGITIMATE"} (${prob}%)
-        </span>
+    tile.innerHTML = `
+      <div class="model-tile-top">
+        <span class="model-tile-name">${escapeHtml(modelName)}</span>
+        <span class="model-tile-verdict ${isPhish ? "phish" : "legit"}">${isPhish ? "Phishing" : "Clean"}</span>
       </div>
-      <div class="mb-track">
-        <div class="mb-fill ${isPhish ? "phish" : "legit"}" style="width: ${prob}%"></div>
+      <div class="model-bar-wrap">
+        <div class="model-bar-fill" style="width: ${prob}%; background: ${
+          isPhish ? "var(--color-danger)" : "var(--color-safe)"
+        };"></div>
+      </div>
+      <div class="model-tile-bottom">
+        <span>Risk: ${prob}%</span>
+        <span>Confidence: ${m.confidence_percent}%</span>
       </div>
     `;
-    DOM.modelBarsGrid.appendChild(item);
-  }
+
+    DOM.modelBarsGrid.appendChild(tile);
+  });
 }
 
 function renderSignals(signals) {
-  if (!DOM.signalsGrid || !signals) return;
   DOM.signalsGrid.innerHTML = "";
-
-  signals.forEach(sig => {
+  signals.forEach((sig) => {
     const card = document.createElement("div");
-    card.className = `signal-card ${sig.status}`;
+    card.className = "signal-card";
+
+    let statusPillClass = "safe";
+    if (sig.status === "danger") statusPillClass = "danger";
+    else if (sig.status === "warning") statusPillClass = "warning";
+
     card.innerHTML = `
-      <span class="sig-name">${sig.name}</span>
-      <span class="sig-value">${sig.value}</span>
-      <span class="sig-detail">${sig.detail}</span>
+      <div class="signal-card-top">
+        <span class="signal-card-title">${escapeHtml(sig.name)}</span>
+        <span class="signal-status-pill ${statusPillClass}">${escapeHtml(sig.status)}</span>
+      </div>
+      <div class="signal-card-value">${escapeHtml(sig.value)}</div>
+      <div class="signal-card-detail">${escapeHtml(sig.detail)}</div>
     `;
+
     DOM.signalsGrid.appendChild(card);
   });
 }
 
-function initInspectorTabs() {
-  DOM.btnInspHighlight?.addEventListener("click", () => {
-    state.inspectorMode = "highlight";
-    DOM.btnInspHighlight.classList.add("active");
-    DOM.btnInspRaw?.classList.remove("active");
-    renderInspector();
-  });
-
-  DOM.btnInspRaw?.addEventListener("click", () => {
-    state.inspectorMode = "raw";
-    DOM.btnInspRaw.classList.add("active");
-    DOM.btnInspHighlight?.classList.remove("active");
-    renderInspector();
-  });
-}
-
-function renderInspector() {
-  if (!DOM.inspectorContent) return;
-  const text = state.rawEmailText;
-  if (!text) {
-    DOM.inspectorContent.innerHTML = "<span class='text-muted'>No text to inspect.</span>";
-    return;
-  }
+function renderInspectorContent() {
+  if (!state.activeScanResult) return;
 
   if (state.inspectorMode === "raw") {
-    DOM.inspectorContent.textContent = text;
+    DOM.inspectorContent.textContent = state.rawEmailText;
     return;
   }
 
-  // Highlight Mode
-  const suspiciousTokens = state.activeScanResult?.suspicious_tokens || [];
-  let html = escapeHtml(text);
-
-  // Highlight URLs
-  const urlRegex = /(https?:\/\/[^\s<>"]+|www\.[^\s<>"]+)/gi;
-  html = html.replace(urlRegex, '<span class="token-highlight-yellow">$1</span>');
+  // Highlighted Mode
+  const tokens = state.activeScanResult.suspicious_tokens || [];
+  let text = escapeHtml(state.rawEmailText);
 
   // Highlight suspicious words
-  suspiciousTokens.forEach(token => {
+  tokens.forEach((token) => {
     if (!token || token.length < 2) return;
-    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const reg = new RegExp(`\\b(${escaped})\\b`, "gi");
-    html = html.replace(reg, '<span class="token-highlight-red">$1</span>');
+    const regex = new RegExp(`\\b(${escapeRegex(token)})\\b`, "gi");
+    text = text.replace(regex, `<mark class="highlight-threat">$1</mark>`);
   });
 
-  DOM.inspectorContent.innerHTML = html.replace(/\n/g, "<br>");
-}
+  // Highlight URLs
+  const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\/[^\s]*)/gi;
+  text = text.replace(urlRegex, `<mark class="highlight-url">$1</mark>`);
 
-function escapeHtml(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  DOM.inspectorContent.innerHTML = text;
 }
 
 /* ==========================================================================
-   Model Benchmarks View
+   Benchmarks Tab Loader & Leaderboard
    ========================================================================== */
-async function fetchModelBenchmarks() {
+async function fetchBenchmarks() {
   try {
     const res = await fetch(`${API_BASE}/api/models`);
     if (!res.ok) return;
@@ -474,375 +475,146 @@ async function fetchModelBenchmarks() {
     state.benchmarkData = data;
     renderBenchmarks(data);
   } catch (err) {
-    console.error("Could not fetch model benchmarks:", err);
+    console.error("Failed to fetch model benchmarks:", err);
   }
 }
 
 function renderBenchmarks(data) {
-  if (!data) return;
-
-  // Overview stats
-  if (DOM.bmTotalEmails) DOM.bmTotalEmails.textContent = data.total_emails.toLocaleString();
-  if (DOM.bmFeatureCount) DOM.bmFeatureCount.textContent = data.feature_count.toLocaleString();
-  if (DOM.bmTestSize) DOM.bmTestSize.textContent = data.test_size.toLocaleString();
-
-  // Leaderboard table
-  if (DOM.leaderboardBody && data.models) {
-    DOM.leaderboardBody.innerHTML = "";
-    const sorted = Object.entries(data.models).sort((a, b) => b[1].f1_score - a[1].f1_score);
-
-    sorted.forEach(([name, m]) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><strong>${name}</strong></td>
-        <td>${(m.accuracy * 100).toFixed(1)}%</td>
-        <td>${(m.precision * 100).toFixed(1)}%</td>
-        <td>${(m.recall * 100).toFixed(1)}%</td>
-        <td><strong>${m.f1_score.toFixed(4)}</strong></td>
-        <td><span class="text-safe">${m.tp}</span></td>
-        <td><span class="text-safe">${m.tn}</span></td>
-        <td>${m.fp > 0 ? `<span class="text-danger">${m.fp}</span>` : "0"}</td>
-        <td>${m.fn > 0 ? `<span class="text-danger">${m.fn}</span>` : "0"}</td>
-      `;
-      DOM.leaderboardBody.appendChild(tr);
-    });
+  // Top Hero Stat Cards
+  if (data.total_emails && DOM.bmTotalEmails) {
+    DOM.bmTotalEmails.textContent = data.total_emails.toLocaleString();
+  }
+  if (data.feature_count && DOM.bmFeatureCount) {
+    DOM.bmFeatureCount.textContent = data.feature_count.toLocaleString();
+  }
+  if (data.test_size && DOM.bmTestSize) {
+    DOM.bmTestSize.textContent = data.test_size.toLocaleString();
   }
 
-  // Confusion Matrices
-  if (DOM.confusionGrid && data.models) {
-    DOM.confusionGrid.innerHTML = "";
-    for (const [name, m] of Object.entries(data.models)) {
-      const cmCard = document.createElement("div");
-      cmCard.className = "cm-card";
-      cmCard.innerHTML = `
-        <div class="cm-title">
-          <span>${name}</span>
-          <span class="card-badge">${(m.accuracy * 100).toFixed(1)}% Acc</span>
-        </div>
-        <div class="cm-matrix">
-          <div class="cm-cell tp">
-            <div class="cm-cell-num">${m.tp}</div>
-            <div class="cm-cell-lbl">True Positive (Phish)</div>
-          </div>
-          <div class="cm-cell fn">
-            <div class="cm-cell-num">${m.fn}</div>
-            <div class="cm-cell-lbl">False Negative (Missed)</div>
-          </div>
-          <div class="cm-cell fp">
-            <div class="cm-cell-num">${m.fp}</div>
-            <div class="cm-cell-lbl">False Positive (False Alarm)</div>
-          </div>
-          <div class="cm-cell tn">
-            <div class="cm-cell-num">${m.tn}</div>
-            <div class="cm-cell-lbl">True Negative (Legit)</div>
-          </div>
-        </div>
-      `;
-      DOM.confusionGrid.appendChild(cmCard);
-    }
-  }
-
-  // Top 20 Feature Importances
-  if (DOM.featureBarsList && data.feature_importance) {
-    DOM.featureBarsList.innerHTML = "";
-    const maxVal = Math.max(...data.feature_importance.map(f => f.importance), 0.001);
-
-    data.feature_importance.forEach(feat => {
-      const pct = Math.round((feat.importance / maxVal) * 100);
-      const row = document.createElement("div");
-      row.className = "feat-bar-row";
-      row.innerHTML = `
-        <span class="feat-name" title="${feat.feature}">${feat.feature}</span>
-        <div class="feat-track">
-          <div class="feat-fill" style="width: ${pct}%"></div>
-        </div>
-        <span class="feat-score">${feat.importance.toFixed(4)}</span>
-      `;
-      DOM.featureBarsList.appendChild(row);
-    });
-  }
-}
-
-/* ==========================================================================
-   Batch CSV Scanner
-   ========================================================================== */
-function initBatchScanner() {
-  const dropzone = DOM.csvDropzone;
-  const fileInput = DOM.csvFileInput;
-
-  if (dropzone && fileInput) {
-    dropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropzone.classList.add("dragover");
-    });
-    dropzone.addEventListener("dragleave", () => {
-      dropzone.classList.remove("dragover");
-    });
-    dropzone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropzone.classList.remove("dragover");
-      if (e.dataTransfer.files.length) {
-        handleCsvFile(e.dataTransfer.files[0]);
-      }
-    });
-    fileInput.addEventListener("change", (e) => {
-      if (e.target.files.length) {
-        handleCsvFile(e.target.files[0]);
-      }
-    });
-  }
-
-  DOM.btnLoadSampleCsv?.addEventListener("click", () => {
-    loadPreloadedBatch();
-  });
-
-  DOM.batchSearchInput?.addEventListener("input", (e) => {
-    filterBatchTable(e.target.value);
-  });
-
-  DOM.btnExportCsv?.addEventListener("click", () => {
-    exportBatchResultsToCsv();
-  });
-}
-
-async function handleCsvFile(file) {
-  if (!file.name.endsWith(".csv")) {
-    alert("Please upload a valid CSV file.");
-    return;
-  }
-
-  const modelName = DOM.batchModelSelect?.value || "Random Forest";
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    const res = await fetch(`${API_BASE}/api/upload-csv?model_name=${encodeURIComponent(modelName)}`, {
-      method: "POST",
-      body: formData
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Batch scan failed");
-    }
-
-    const batchData = await res.json();
-    renderBatchScanResults(batchData);
-  } catch (err) {
-    console.error("Batch scan error:", err);
-    alert(`CSV scan failed: ${err.message}`);
-  }
-}
-
-async function loadPreloadedBatch() {
-  if (!state.samples.length) {
-    await fetchSampleEmails();
-  }
-  const modelName = DOM.batchModelSelect?.value || "Random Forest";
-  const emailItems = state.samples.map(s => ({
-    id: s.id,
-    sender: s.sender,
-    subject: s.subject,
-    body: s.body,
-    model_name: modelName
+  // 1. Leaderboard Table
+  const models = data.models || {};
+  const modelList = Object.keys(models).map((name) => ({
+    name,
+    ...models[name],
   }));
 
-  try {
-    const res = await fetch(`${API_BASE}/api/batch-predict`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ emails: emailItems })
-    });
+  // Sort descending by F1-Score
+  modelList.sort((a, b) => b.f1_score - a.f1_score);
 
-    if (!res.ok) throw new Error("Batch request failed");
-    const data = await res.json();
-    renderBatchScanResults(data);
-  } catch (err) {
-    console.error("Load batch sample error:", err);
-    alert(`Batch error: ${err.message}`);
-  }
-}
+  const ranks = ["🥇", "🥈", "🥉", "4️⃣"];
+  DOM.leaderboardBody.innerHTML = "";
 
-function renderBatchScanResults(batchData) {
-  state.batchResults = batchData.results || [];
-  const summary = batchData.summary || {};
-
-  if (DOM.batchTotalCount) DOM.batchTotalCount.textContent = summary.total_analyzed || 0;
-  if (DOM.batchPhishCount) DOM.batchPhishCount.textContent = `${summary.phishing_detected || 0} (${summary.phishing_rate_percent || 0}%)`;
-  if (DOM.batchLegitCount) DOM.batchLegitCount.textContent = summary.legitimate_detected || 0;
-  if (DOM.batchAvgScore) DOM.batchAvgScore.textContent = `${summary.average_threat_score || 0}%`;
-
-  if (DOM.btnExportCsv) {
-    DOM.btnExportCsv.disabled = state.batchResults.length === 0;
-  }
-
-  filterBatchTable("");
-}
-
-function filterBatchTable(query) {
-  if (!DOM.batchTableBody) return;
-  const q = query.toLowerCase().trim();
-  const rows = state.batchResults.filter(item => {
-    if (!q) return true;
-    return (
-      (item.subject && item.subject.toLowerCase().includes(q)) ||
-      (item.sender && item.sender.toLowerCase().includes(q)) ||
-      (item.prediction && item.prediction.toLowerCase().includes(q)) ||
-      (item.id && item.id.toLowerCase().includes(q))
-    );
-  });
-
-  if (DOM.batchRowCountTag) {
-    DOM.batchRowCountTag.textContent = `${rows.length} of ${state.batchResults.length} Records`;
-  }
-
-  if (rows.length === 0) {
-    DOM.batchTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No emails matching query.</td></tr>`;
-    return;
-  }
-
-  DOM.batchTableBody.innerHTML = "";
-  rows.forEach(r => {
-    const isPhish = r.is_phishing;
+  modelList.forEach((m, idx) => {
     const tr = document.createElement("tr");
+    const accPct = (m.accuracy * 100).toFixed(2);
+    const precPct = (m.precision * 100).toFixed(2);
+    const recPct = (m.recall * 100).toFixed(2);
+    const f1Pct = (m.f1_score * 100).toFixed(2);
+    const isTop = idx === 0;
+
     tr.innerHTML = `
-      <td><code>${r.id || "-"}</code></td>
-      <td title="${r.sender || ""}">${truncate(r.sender || "", 24)}</td>
-      <td title="${r.subject || ""}">${truncate(r.subject || "", 30)}</td>
       <td>
-        <span class="threat-level-badge ${isPhish ? "danger" : "safe"}">
-          ${isPhish ? "PHISHING" : "LEGITIMATE"}
-        </span>
+        <div class="table-model-name">
+          <span class="rank-badge">${ranks[idx] || "#"}</span>
+          <span>${escapeHtml(m.name)}</span>
+        </div>
       </td>
-      <td><strong>${r.risk_score}%</strong></td>
-      <td>${r.confidence_percent}%</td>
-      <td>
-        <button class="btn btn-ghost btn-sm" type="button" onclick="loadBatchItemToScanner('${r.id}')">Inspect</button>
-      </td>
+      <td><span class="metric-pill ${isTop ? "top" : "normal"}">${accPct}%</span></td>
+      <td>${precPct}%</td>
+      <td>${recPct}%</td>
+      <td><strong>${f1Pct}%</strong></td>
+      <td>${(m.tp || 0).toLocaleString()}</td>
+      <td>${(m.tn || 0).toLocaleString()}</td>
+      <td>${(m.fp || 0).toLocaleString()}</td>
+      <td>${(m.fn || 0).toLocaleString()}</td>
     `;
-    DOM.batchTableBody.appendChild(tr);
+
+    DOM.leaderboardBody.appendChild(tr);
+  });
+
+  // 2. Confusion Matrices Grid
+  renderConfusionMatrices(modelList);
+
+  // 3. Top 20 Feature Importance
+  renderFeatureImportance(data.feature_importance || []);
+}
+
+function renderConfusionMatrices(modelList) {
+  DOM.confusionGrid.innerHTML = "";
+
+  modelList.forEach((m) => {
+    const card = document.createElement("div");
+    card.className = "cm-card";
+
+    const tp = m.tp || 0;
+    const tn = m.tn || 0;
+    const fp = m.fp || 0;
+    const fn = m.fn || 0;
+
+    card.innerHTML = `
+      <div class="cm-title">${escapeHtml(m.name)}</div>
+      <div class="cm-table-wrap">
+        <div class="cm-cell correct">
+          <span class="cm-cell-label">True Negative (TN)</span>
+          <span class="cm-cell-val">${tn.toLocaleString()}</span>
+        </div>
+        <div class="cm-cell error">
+          <span class="cm-cell-label">False Positive (FP)</span>
+          <span class="cm-cell-val">${fp.toLocaleString()}</span>
+        </div>
+        <div class="cm-cell error">
+          <span class="cm-cell-label">False Negative (FN)</span>
+          <span class="cm-cell-val">${fn.toLocaleString()}</span>
+        </div>
+        <div class="cm-cell correct">
+          <span class="cm-cell-label">True Positive (TP)</span>
+          <span class="cm-cell-val">${tp.toLocaleString()}</span>
+        </div>
+      </div>
+    `;
+
+    DOM.confusionGrid.appendChild(card);
   });
 }
 
-function truncate(str, n) {
-  return str.length > n ? str.substr(0, n - 1) + "…" : str;
-}
+function renderFeatureImportance(features) {
+  DOM.featureBarsList.innerHTML = "";
+  if (!features.length) return;
 
-window.loadBatchItemToScanner = function(id) {
-  const item = state.samples.find(s => s.id === id);
-  if (item) {
-    populateFormWithSample(item);
-    // Switch to scanner view
-    const tab = document.getElementById("tabBtnScanner");
-    if (tab) tab.click();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-};
+  const maxVal = Math.max(...features.map((f) => f.importance || 0), 0.01);
 
-function exportBatchResultsToCsv() {
-  if (!state.batchResults.length) return;
-  const headers = ["ID", "Sender", "Subject", "Prediction", "Threat Score", "Confidence", "Threat Level"];
-  const rows = state.batchResults.map(r => [
-    `"${r.id || ""}"`,
-    `"${(r.sender || "").replace(/"/g, '""')}"`,
-    `"${(r.subject || "").replace(/"/g, '""')}"`,
-    `"${r.prediction || ""}"`,
-    r.risk_score || 0,
-    r.confidence_percent || 0,
-    `"${r.risk_level || ""}"`
-  ]);
+  features.slice(0, 20).forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "feature-row";
 
-  const csvContent = [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", `phishguard_scan_results_${Date.now()}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+    const widthPct = ((item.importance / maxVal) * 100).toFixed(1);
+    const weightPct = ((item.importance) * 100).toFixed(2);
+
+    row.innerHTML = `
+      <span class="feature-token" title="${escapeHtml(item.feature)}">${escapeHtml(item.feature)}</span>
+      <div class="feature-bar-track">
+        <div class="feature-bar-progress" style="width: ${widthPct}%;"></div>
+      </div>
+      <span class="feature-pct">${weightPct}%</span>
+    `;
+
+    DOM.featureBarsList.appendChild(row);
+  });
 }
 
 /* ==========================================================================
-   Code Snippet Generator & Clipboard
+   Utilities
    ========================================================================== */
-function initCodeGenerator() {
-  DOM.snipTabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      DOM.snipTabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      state.selectedCodeLang = tab.getAttribute("data-lang");
-      updateCodeSnippet();
-    });
-  });
-
-  DOM.btnCopyCode?.addEventListener("click", () => {
-    const code = DOM.codeSnippetDisplay?.textContent || "";
-    navigator.clipboard.writeText(code).then(() => {
-      const copyLabel = document.getElementById("copyLabel");
-      const copyIcon = document.getElementById("copyIcon");
-      if (copyLabel) copyLabel.textContent = "Copied!";
-      if (copyIcon) copyIcon.textContent = "✅";
-      setTimeout(() => {
-        if (copyLabel) copyLabel.textContent = "Copy";
-        if (copyIcon) copyIcon.textContent = "📋";
-      }, 2000);
-    });
-  });
-
-  updateCodeSnippet();
+function escapeHtml(str) {
+  if (typeof str !== "string") return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
-function updateCodeSnippet() {
-  if (!DOM.codeSnippetDisplay) return;
-  const origin = window.location.origin;
-
-  const curlCode = `curl -X POST "${origin}/api/predict" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "sender": "security-alert@irs-refund-claim.xyz",
-    "subject": "Urgent: Tax Refund Pending Action Required",
-    "body": "Confirm your banking credentials immediately at http://irs-refund-claim.xyz",
-    "model_name": "Random Forest"
-  }'`;
-
-  const pythonCode = `import requests
-
-payload = {
-    "sender": "security-alert@irs-refund-claim.xyz",
-    "subject": "Urgent: Tax Refund Pending Action Required",
-    "body": "Confirm your banking credentials immediately at http://irs-refund-claim.xyz",
-    "model_name": "Random Forest"
-}
-
-response = requests.post("${origin}/api/predict", json=payload)
-data = response.json()
-
-print(f"Verdict: {data['prediction'].upper()}")
-print(f"Threat Score: {data['risk_score']}% ({data['risk_level']})")
-print(f"Recommendation: {data['recommendation']}")`;
-
-  const jsCode = `const payload = {
-  sender: "security-alert@irs-refund-claim.xyz",
-  subject: "Urgent: Tax Refund Pending Action Required",
-  body: "Confirm your banking credentials immediately at http://irs-refund-claim.xyz",
-  model_name: "Random Forest"
-};
-
-fetch("${origin}/api/predict", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-})
-  .then(res => res.json())
-  .then(data => {
-    console.log("Prediction:", data.prediction);
-    console.log("Risk Score:", data.risk_score + "%");
-  });`;
-
-  let snippet = curlCode;
-  if (state.selectedCodeLang === "python") snippet = pythonCode;
-  if (state.selectedCodeLang === "js") snippet = jsCode;
-
-  DOM.codeSnippetDisplay.textContent = snippet;
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

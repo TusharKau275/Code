@@ -3,569 +3,488 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PhishGuard AI | Advanced NLP Phishing Email Threat Detection</title>
-  <meta name="description" content="AI-driven Phishing Email Detection system combining NLP TF-IDF text features and structural metadata with 4 machine learning models. Developed by IICT.">
+  <title>PhishGuard AI — Advanced Phishing Email Threat Detection</title>
+  <meta name="description" content="Enterprise-grade AI phishing email detector powered by NLP and multi-model machine learning. Detect spoofing, urgency traps, and malicious links in real-time.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
-  <!-- Google Fonts: Outfit, Inter, JetBrains Mono -->
+  <!-- Google Fonts: Plus Jakarta Sans (headings), Inter (body), JetBrains Mono (tech/code) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body class="cyber-theme">
-  <!-- Ambient background glow elements -->
-  <div class="ambient-glow glow-cyan"></div>
-  <div class="ambient-glow glow-blue"></div>
-  <div class="ambient-glow glow-purple"></div>
 
-  <!-- Header -->
-  <header class="site-header" id="mainHeader">
-    <div class="header-container">
-      <div class="brand-wrapper">
-        <div class="logo-shield">
-          <svg viewBox="0 0 100 100" class="shield-icon">
-            <defs>
-              <linearGradient id="hdrGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#06b6d4" />
-                <stop offset="100%" stop-color="#3b82f6" />
-              </linearGradient>
-            </defs>
-            <path d="M50 8 L85 24 C85 60 50 92 50 92 C50 92 15 60 15 24 Z" fill="rgba(15, 23, 42, 0.9)" stroke="url(#hdrGrad)" stroke-width="4"/>
-            <circle cx="50" cy="46" r="10" fill="none" stroke="#38bdf8" stroke-width="3"/>
-            <rect x="42" y="44" width="16" height="14" rx="3" fill="#06b6d4"/>
-            <circle cx="50" cy="51" r="2" fill="#0b0f19"/>
+  <!-- Ambient Background Lighting -->
+  <div class="ambient-glow glow-cyan" aria-hidden="true"></div>
+  <div class="ambient-glow glow-indigo" aria-hidden="true"></div>
+
+  <!-- Top Header Navigation -->
+  <header class="header" id="mainHeader">
+    <div class="header-inner">
+      <a href="/" class="brand" aria-label="PhishGuard Home">
+        <div class="brand-icon-wrapper">
+          <svg viewBox="0 0 28 28" class="brand-icon" aria-hidden="true">
+            <path d="M14 2 L25 7 C25 18 14 26 14 26 C14 26 3 18 3 7 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="14" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M11.5 13 L13.2 14.7 L16.8 11.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <div class="brand-text">
-          <h1 class="brand-title">PHISHGUARD <span class="text-accent">AI</span></h1>
-          <p class="brand-subtitle">NLP Threat Defense System • IICT ML Architecture</p>
+          <span class="brand-title">PhishGuard<span class="brand-accent">AI</span></span>
+          <span class="brand-subtitle">Defense Engine</span>
         </div>
-      </div>
+      </a>
 
-      <!-- Navigation Tabs -->
-      <nav class="nav-tabs" role="tablist" aria-label="Main Navigation">
-        <button class="nav-tab active" id="tabBtnScanner" role="tab" aria-selected="true" aria-controls="viewScanner" data-view="scanner">
-          <span class="tab-icon">🔍</span> Live Scanner
+      <!-- Primary Nav Tabs -->
+      <nav class="nav" role="tablist" aria-label="Main Navigation">
+        <button class="nav-btn active" id="tabBtnScanner" role="tab" aria-selected="true" aria-controls="viewScanner" data-view="scanner">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm-1 4a1 1 0 112 0v3.586l2.707 2.707a1 1 0 01-1.414 1.414l-3-3A1 1 0 019 10V6z"/>
+          </svg>
+          Threat Scanner
         </button>
-        <button class="nav-tab" id="tabBtnBenchmarks" role="tab" aria-selected="false" aria-controls="viewBenchmarks" data-view="benchmarks">
-          <span class="tab-icon">📊</span> Model Benchmarks
-        </button>
-        <button class="nav-tab" id="tabBtnBatch" role="tab" aria-selected="false" aria-controls="viewBatch" data-view="batch">
-          <span class="tab-icon">📁</span> Batch CSV Scanner
-        </button>
-        <button class="nav-tab" id="tabBtnApi" role="tab" aria-selected="false" aria-controls="viewApi" data-view="api">
-          <span class="tab-icon">⚡</span> Developer API
+        <button class="nav-btn" id="tabBtnBenchmarks" role="tab" aria-selected="false" aria-controls="viewBenchmarks" data-view="benchmarks">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+          </svg>
+          Model Benchmarks
         </button>
       </nav>
 
-      <!-- Status Indicator -->
-      <div class="header-status">
-        <div class="status-pill" id="systemStatusPill">
-          <span class="status-dot pulsing"></span>
-          <span class="status-label" id="systemStatusText">Connecting...</span>
-        </div>
+      <!-- System Status Indicator -->
+      <div class="system-status" id="systemStatusPill" title="Backend API Health">
+        <span class="status-pulse" id="statusDot"></span>
+        <span class="status-text" id="systemStatusText">Connecting…</span>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Area -->
-  <main class="main-content" id="mainContent">
+  <!-- Main Container -->
+  <main class="main-container">
 
-    <!-- ==================== VIEW 1: LIVE SCANNER ==================== -->
+    <!-- =========================================================================
+         VIEW 1: THREAT SCANNER
+         ========================================================================= -->
     <section class="view-panel active" id="viewScanner" role="tabpanel" aria-labelledby="tabBtnScanner">
-      <!-- Hero Banner -->
-      <div class="hero-banner">
-        <div class="hero-content">
 
-
-          <h2 class="hero-title">Detect Phishing Emails Instantly</h2>
-          <p class="hero-desc">
-            Paste an email below to scan it for phishing threats using AI-powered analysis.
-          </p>
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>Dual NLP Feature Extraction &bull; 4 ML Classifiers Active</span>
         </div>
-        <div class="quick-samples-box">
-          <span class="samples-title">⚡ Try Real-World Samples:</span>
-          <div class="samples-scroll" id="samplesContainer">
-            <button class="sample-chip phish" data-id="phish-1">🚨 Tax Refund Scam</button>
-            <button class="sample-chip phish" data-id="phish-2">🚨 Netflix Suspension</button>
-            <button class="sample-chip phish" data-id="phish-3">🚨 IT Storage Alert</button>
-            <button class="sample-chip legit" data-id="legit-1">🛡️ Sprint Demo Sync</button>
-            <button class="sample-chip legit" data-id="legit-2">🛡️ Cloud Invoice</button>
-            <button class="sample-chip legit" data-id="legit-3">🛡️ AI Symposium</button>
+        <h1 class="hero-title">Real-Time AI Phishing Detection</h1>
+        <p class="hero-description">
+          Analyze suspicious emails against 82,400+ validated phishing vectors. Our ensemble models evaluate sender reputation, urgency linguistics, and hidden payload links in milliseconds.
+        </p>
+      </div>
+
+      <!-- Quick Preset Samples -->
+      <div class="samples-card">
+        <div class="samples-header">
+          <div class="samples-title-wrap">
+            <span class="samples-icon">⚡</span>
+            <span class="samples-heading">Load Test Sample:</span>
           </div>
+          <span class="samples-hint">Click any threat scenario to automatically fill the analyzer</span>
+        </div>
+        <div class="samples-chips" id="samplesContainer">
+          <!-- Dynamically populated by app.js -->
         </div>
       </div>
 
-      <!-- Scanner Grid -->
+      <!-- Core Scanner Grid Layout -->
       <div class="scanner-grid">
-        <!-- Left Column: Input Form -->
-        <div class="card glass-card input-card">
+
+        <!-- Column 1: Input Console -->
+        <div class="console-card input-card">
           <div class="card-header">
             <div class="card-title-group">
-              <span class="card-badge">INPUT</span>
-              <h3 class="card-title">Email Payload Inspector</h3>
+              <span class="card-step-badge">1</span>
+              <div>
+                <h2 class="card-title">Email Payload Inspector</h2>
+                <p class="card-caption">Paste raw or formatted email contents below</p>
+              </div>
             </div>
-            <div class="model-select-wrapper">
-              <label for="modelSelect" class="sr-only">Classifier Model</label>
-              <select id="modelSelect" class="cyber-select" title="Select Machine Learning Model">
-                <option value="Random Forest" selected>Random Forest (Recommended - 100% Acc)</option>
-                <option value="Neural Network (MLP)">Neural Network MLP (100% Acc)</option>
-                <option value="Naive Bayes">Naive Bayes (100% Acc)</option>
-                <option value="Logistic Regression">Logistic Regression (99.7% Acc)</option>
-              </select>
+
+            <!-- Model Picker -->
+            <div class="model-picker-wrap">
+              <label for="modelSelect" class="model-picker-label">Active Classifier</label>
+              <div class="select-wrapper">
+                <select id="modelSelect" class="custom-select" aria-label="Select Machine Learning Classifier">
+                  <option value="Random Forest" selected>Random Forest (97.95% Acc)</option>
+                  <option value="Neural Network (MLP)">Neural Network (97.95% Acc)</option>
+                  <option value="Logistic Regression">Logistic Regression (96.85% Acc)</option>
+                  <option value="Naive Bayes">Naive Bayes (93.99% Acc)</option>
+                </select>
+                <span class="select-arrow" aria-hidden="true">▾</span>
+              </div>
             </div>
           </div>
 
           <form id="emailScanForm" class="scan-form" novalidate>
-            <!-- Sender Field -->
+            <!-- Sender Input -->
             <div class="form-group">
-              <div class="field-label-row">
-                <label for="inputSender" class="form-label">Sender Address (From)</label>
-                <span class="domain-tag" id="parsedDomainTag">No domain</span>
+              <div class="label-row">
+                <label for="inputSender" class="form-label">
+                  <span class="label-text">From (Sender Header)</span>
+                </label>
+                <span class="domain-badge" id="parsedDomainTag">No domain detected</span>
               </div>
-              <div class="input-with-icon">
-                <span class="input-icon">✉️</span>
-                <input type="text" id="inputSender" class="cyber-input" placeholder="e.g. security-update@irs-refund-claim.xyz" required autocomplete="off">
+              <div class="input-icon-wrap">
+                <span class="input-icon" aria-hidden="true">@</span>
+                <input
+                  type="text"
+                  id="inputSender"
+                  class="cyber-input"
+                  placeholder="e.g. security-alert@irs-refund-claim.xyz"
+                  required
+                  autocomplete="off"
+                  spellcheck="false"
+                >
               </div>
             </div>
 
-            <!-- Subject Field -->
+            <!-- Subject Line -->
             <div class="form-group">
-              <div class="field-label-row">
-                <label for="inputSubject" class="form-label">Subject Line</label>
-                <span class="char-count" id="subjectCharCount">0 chars</span>
+              <div class="label-row">
+                <label for="inputSubject" class="form-label">
+                  <span class="label-text">Subject Line</span>
+                </label>
+                <span class="counter-badge" id="subjectCharCount">0 chars</span>
               </div>
-              <div class="input-with-icon">
-                <span class="input-icon">📌</span>
-                <input type="text" id="inputSubject" class="cyber-input" placeholder="e.g. Urgent: Account Verification Required Within 24h" required autocomplete="off">
+              <div class="input-icon-wrap">
+                <span class="input-icon" aria-hidden="true">✉</span>
+                <input
+                  type="text"
+                  id="inputSubject"
+                  class="cyber-input"
+                  placeholder="e.g. URGENT: Action Required Regarding Your Account Suspension"
+                  required
+                  autocomplete="off"
+                >
               </div>
             </div>
 
-            <!-- Body Field -->
+            <!-- Email Body Content -->
             <div class="form-group">
-              <div class="field-label-row">
-                <label for="inputBody" class="form-label">Email Message Body</label>
-                <span class="char-count" id="bodyCharCount">0 chars</span>
+              <div class="label-row">
+                <label for="inputBody" class="form-label">
+                  <span class="label-text">Email Body Message</span>
+                </label>
+                <span class="counter-badge" id="bodyCharCount">0 words &bull; 0 chars</span>
               </div>
-              <textarea id="inputBody" class="cyber-textarea" rows="8" placeholder="Paste full email body content here, including any links or instructions..." required></textarea>
+              <textarea
+                id="inputBody"
+                class="cyber-textarea"
+                rows="7"
+                placeholder="Paste the full email text, body content, or HTML here…"
+                required
+              ></textarea>
             </div>
 
-            <!-- Actions Bar -->
+            <!-- Action Buttons -->
             <div class="form-actions">
-              <button type="submit" id="btnAnalyze" class="btn btn-primary btn-glow">
+              <button type="submit" id="btnAnalyze" class="btn btn-scan">
+                <span class="btn-glow" aria-hidden="true"></span>
                 <span class="btn-spinner" id="btnSpinner" aria-hidden="true"></span>
-                <span class="btn-icon">⚡</span> Analyze Threat
+                <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+                </svg>
+                <span class="btn-text" id="btnScanText">Analyze Email Threat</span>
               </button>
-              <button type="button" id="btnClear" class="btn btn-secondary">
-                <span>🔄</span> Clear
+
+              <button type="button" id="btnRandomSample" class="btn btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                </svg>
+                Random Sample
               </button>
-              <button type="button" id="btnRandomSample" class="btn btn-ghost">
-                <span>🎲</span> Random Sample
+
+              <button type="button" id="btnClear" class="btn btn-ghost">
+                Clear
               </button>
             </div>
           </form>
         </div>
 
-        <!-- Right Column: Results Display -->
-        <div class="card glass-card results-card" id="resultsCard">
-          <!-- Empty State (Shown before scan) -->
-          <div class="results-empty" id="resultsEmpty">
-            <div class="empty-icon-shield">
-              <svg viewBox="0 0 100 100" class="empty-shield-svg">
-                <path d="M50 15 L80 28 C80 58 50 85 50 85 C50 85 20 58 20 28 Z" fill="none" stroke="rgba(148, 163, 184, 0.3)" stroke-width="3" stroke-dasharray="6 6"/>
-                <circle cx="50" cy="48" r="14" fill="none" stroke="rgba(148, 163, 184, 0.4)" stroke-width="2"/>
-                <path d="M44 48 L48 52 L56 44" fill="none" stroke="rgba(148, 163, 184, 0.4)" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+        <!-- Column 2: Results & Threat Intelligence Console -->
+        <div class="console-card results-card" id="resultsCard">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-step-badge">2</span>
+              <div>
+                <h2 class="card-title">Threat Assessment & Explainability</h2>
+                <p class="card-caption">NLP signal breakdown and multi-classifier consensus</p>
+              </div>
             </div>
-            <h4 class="empty-title">Awaiting Email Submission</h4>
-            <p class="empty-desc">Enter an email sender, subject, and body or select a sample above, then click <strong>Analyze Threat</strong> to run the full NLP pipeline.</p>
+            <span class="live-scan-tag" id="liveScanTag">Ready</span>
           </div>
 
-          <!-- Active Results (Hidden initially) -->
+          <!-- Empty State (Shown before scan) -->
+          <div class="empty-state" id="resultsEmpty">
+            <div class="radar-container" aria-hidden="true">
+              <div class="radar-circle radar-c1"></div>
+              <div class="radar-circle radar-c2"></div>
+              <div class="radar-circle radar-c3"></div>
+              <div class="radar-sweep"></div>
+              <div class="radar-center">
+                <svg viewBox="0 0 24 24" class="radar-shield-icon">
+                  <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+            <h3 class="empty-title">Awaiting Email Submission</h3>
+            <p class="empty-desc">
+              Input an email on the left or select a sample scenario above, then run <strong>Analyze Email Threat</strong> to trigger the classification pipeline.
+            </p>
+            <div class="empty-features">
+              <span class="feature-tag">✔ 4 ML Models Cross-Validated</span>
+              <span class="feature-tag">✔ Linguistic Urgency Parsing</span>
+              <span class="feature-tag">✔ Malicious URL Tokenizer</span>
+            </div>
+          </div>
+
+          <!-- Active Analysis State (Populated by JS) -->
           <div class="results-active hidden" id="resultsActive">
-            <!-- Verdict Hero -->
+
+            <!-- Primary Verdict Banner -->
             <div class="verdict-banner" id="verdictBanner">
-              <div class="verdict-left">
-                <div class="threat-level-badge" id="threatBadge">CRITICAL THREAT</div>
-                <h3 class="threat-headline" id="threatHeadline">Phishing Email Detected</h3>
-                <p class="threat-recommendation" id="threatRecommendation">
-                  Do not click any embedded links or respond with personal information.
+              <div class="verdict-main">
+                <div class="verdict-badge-row">
+                  <span class="verdict-pill" id="threatBadge">CRITICAL THREAT</span>
+                  <span class="confidence-pill" id="confidencePill">99.2% Confidence</span>
+                </div>
+                <h3 class="verdict-headline" id="threatHeadline">Phishing Attack Detected</h3>
+                <p class="verdict-recommendation" id="threatRecommendation">
+                  Do not click links or reveal credentials. Email shows strong indicators of social engineering.
                 </p>
               </div>
 
-              <!-- Animated Risk Score Gauge -->
-              <div class="gauge-container">
-                <div class="svg-gauge-wrapper">
-                  <svg class="svg-gauge" viewBox="0 0 120 120">
-                    <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
-                    <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="50" stroke-dasharray="314.15" stroke-dashoffset="314.15"></circle>
-                  </svg>
-                  <div class="gauge-center-text">
-                    <span class="gauge-score-value" id="gaugeScoreValue">0</span><span class="gauge-percent">%</span>
-                    <span class="gauge-score-label">RISK SCORE</span>
+              <!-- Risk Score Radial Gauge -->
+              <div class="gauge-container" title="Overall Threat Probability Score">
+                <svg class="gauge-svg" viewBox="0 0 120 120">
+                  <circle class="gauge-track" cx="60" cy="60" r="50"/>
+                  <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="50" stroke-dasharray="314.15" stroke-dashoffset="314.15"/>
+                </svg>
+                <div class="gauge-content">
+                  <div class="gauge-number-wrap">
+                    <span class="gauge-value" id="gaugeScoreValue">0</span>
+                    <span class="gauge-symbol">%</span>
                   </div>
+                  <span class="gauge-label">THREAT SCORE</span>
                 </div>
               </div>
             </div>
 
-            <!-- Model Consensus Vote Cards -->
-            <div class="section-block">
-              <div class="section-title-row">
-                <h4 class="section-title">Ensemble Model Predictions</h4>
+            <!-- Model Consensus Breakdown -->
+            <div class="intel-section">
+              <div class="intel-header">
+                <h3 class="intel-title">
+                  <span class="intel-icon">🤖</span>
+                  Model Voting Consensus
+                </h3>
                 <span class="consensus-tag" id="consensusTag">4 of 4 Models Agree</span>
               </div>
-              <div class="model-bars-grid" id="modelBarsGrid">
-                <!-- Populated dynamically -->
+              <div class="models-grid" id="modelBarsGrid">
+                <!-- Populated by JS -->
               </div>
             </div>
 
-            <!-- Structural Signal Cards Grid -->
-            <div class="section-block">
-              <h4 class="section-title">Structural & Metadata Threat Signals</h4>
+            <!-- Heuristic Threat Signals -->
+            <div class="intel-section">
+              <div class="intel-header">
+                <h3 class="intel-title">
+                  <span class="intel-icon">🔍</span>
+                  Behavioral & NLP Threat Signals
+                </h3>
+                <span class="intel-subtext">Heuristic extraction rules</span>
+              </div>
               <div class="signals-grid" id="signalsGrid">
-                <!-- Populated dynamically -->
+                <!-- Populated by JS -->
               </div>
             </div>
 
-            <!-- Text Inspector: Raw vs Highlighted View -->
-            <div class="section-block">
-              <div class="section-title-row">
-                <h4 class="section-title">Linguistic Inspection & Threat Highlights</h4>
-                <div class="inspector-tabs" role="tablist">
-                  <button class="insp-tab active" id="btnInspHighlight" data-mode="highlight">Highlighted Tokens</button>
-                  <button class="insp-tab" id="btnInspRaw" data-mode="raw">Plain Text</button>
+            <!-- Explainability Text Inspector -->
+            <div class="intel-section">
+              <div class="intel-header">
+                <div class="inspector-title-wrap">
+                  <h3 class="intel-title">
+                    <span class="intel-icon">📝</span>
+                    Payload Explainability Inspector
+                  </h3>
+                  <span class="intel-subtext">Highlights high-weight tokens used by the NLP vectorizer</span>
+                </div>
+                <div class="inspector-controls" role="tablist">
+                  <button class="toggle-mode-btn active" id="btnInspHighlight" data-mode="highlight">
+                    Highlighted Tokens
+                  </button>
+                  <button class="toggle-mode-btn" id="btnInspRaw" data-mode="raw">
+                    Raw Text
+                  </button>
                 </div>
               </div>
-              <div class="inspector-container">
-                <div class="inspector-content" id="inspectorContent">
-                  <!-- Highlighted text injected here -->
-                </div>
-              </div>
-              <div class="tokens-legend" id="tokensLegend">
-                <span class="legend-item"><span class="legend-dot red"></span> High-Risk Phishing Trigger</span>
-                <span class="legend-item"><span class="legend-dot yellow"></span> Normalized URL Token</span>
+
+              <div class="inspector-box" id="inspectorContent"></div>
+
+              <div class="inspector-legend">
+                <span class="legend-chip legend-red">
+                  <span class="chip-dot"></span> Phishing & Coercion Keywords
+                </span>
+                <span class="legend-chip legend-amber">
+                  <span class="chip-dot"></span> Embedded URL Token
+                </span>
               </div>
             </div>
+
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== VIEW 2: MODEL BENCHMARKS ==================== -->
+    <!-- =========================================================================
+         VIEW 2: MODEL BENCHMARKS & LEADERBOARD
+         ========================================================================= -->
     <section class="view-panel" id="viewBenchmarks" role="tabpanel" aria-labelledby="tabBtnBenchmarks" hidden>
-      <div class="benchmarks-header">
-        <div class="hero-badge"><span class="badge-dot"></span> IICT NLP Evaluation Benchmark</div>
-        <h2 class="hero-title">Comparative Analysis of 4 Machine Learning Classifiers</h2>
-        <p class="hero-desc">
-          Trained on the IICT Phishing Dataset (1,200 emails, 50% phishing / 50% legitimate) with a stratified 75/25 train/test split.
-          All models combine 1,500 TF-IDF n-grams with 6 scaled structural metadata features.
+
+      <!-- Benchmarks Hero -->
+      <div class="hero-section">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>Verified Evaluation Metrics &bull; Scikit-Learn Pipeline</span>
+        </div>
+        <h1 class="hero-title">Model Performance & Leaderboard</h1>
+        <p class="hero-description">
+          Rigorous benchmarking results across 4 ML architectures evaluated on our curated IICT corpus. Random Forest and Multilayer Perceptron achieve superior generalization on unseen phishing vectors.
         </p>
       </div>
 
-      <!-- Metrics Summary Cards -->
-      <div class="metrics-cards-row">
-        <div class="metric-summary-card">
-          <span class="m-label">TOTAL DATASET</span>
-          <span class="m-val" id="bmTotalEmails">1,200</span>
-          <span class="m-sub">Balanced 50/50 distribution</span>
+      <!-- Quick Metrics Hero Grid -->
+      <div class="benchmark-stats-grid">
+        <div class="metric-card">
+          <div class="metric-icon-wrap cyan">📚</div>
+          <div class="metric-details">
+            <span class="metric-label">Total Corpus Size</span>
+            <span class="metric-value" id="bmTotalEmails">82,484</span>
+            <span class="metric-sub">Labeled Emails</span>
+          </div>
         </div>
-        <div class="metric-summary-card">
-          <span class="m-label">ENGINEERED FEATURES</span>
-          <span class="m-val" id="bmFeatureCount">1,302</span>
-          <span class="m-sub">1,296 TF-IDF + 6 Metadata</span>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap indigo">🧬</div>
+          <div class="metric-details">
+            <span class="metric-label">NLP Features</span>
+            <span class="metric-value" id="bmFeatureCount">1,506</span>
+            <span class="metric-sub">TF-IDF + Metadata Signals</span>
+          </div>
         </div>
-        <div class="metric-summary-card">
-          <span class="m-label">TOP PERFORMER</span>
-          <span class="m-val highlight-cyan">Random Forest</span>
-          <span class="m-sub">100% Acc • 1.000 F1-Score</span>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap green">🏆</div>
+          <div class="metric-details">
+            <span class="metric-label">Best Accuracy</span>
+            <span class="metric-value text-green">97.95%</span>
+            <span class="metric-sub">Random Forest &amp; MLP</span>
+          </div>
         </div>
-        <div class="metric-summary-card">
-          <span class="m-label">TEST SPLIT SIZE</span>
-          <span class="m-val" id="bmTestSize">300</span>
-          <span class="m-sub">Stratified holdout set</span>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap amber">🧪</div>
+          <div class="metric-details">
+            <span class="metric-label">Test Evaluation Set</span>
+            <span class="metric-value" id="bmTestSize">20,621</span>
+            <span class="metric-sub">Holdout Set Emails</span>
+          </div>
         </div>
       </div>
 
-      <!-- Comparative Table Card -->
-      <div class="card glass-card">
+      <!-- Leaderboard Table Card -->
+      <div class="console-card benchmark-card">
         <div class="card-header">
-          <h3 class="card-title">Model Performance Leaderboard</h3>
-          <span class="card-badge">EVALUATION METRICS</span>
+          <div class="card-title-group">
+            <span class="card-step-badge">📊</span>
+            <div>
+              <h2 class="card-title">Model Comparison Leaderboard</h2>
+              <p class="card-caption">Comprehensive metrics evaluated across the 20,621 holdout test set</p>
+            </div>
+          </div>
+          <span class="table-info-badge">Sorted by F1-Score</span>
         </div>
-        <div class="table-responsive">
-          <table class="cyber-table" id="leaderboardTable">
+
+        <div class="table-container">
+          <table class="benchmark-table" id="leaderboardTable">
             <thead>
               <tr>
-                <th>Model Architecture</th>
+                <th>Rank &amp; Model</th>
                 <th>Accuracy</th>
                 <th>Precision</th>
                 <th>Recall</th>
                 <th>F1-Score</th>
-                <th>True Pos</th>
-                <th>True Neg</th>
-                <th>False Pos</th>
-                <th>False Neg</th>
+                <th>True Pos (TP)</th>
+                <th>True Neg (TN)</th>
+                <th>False Pos (FP)</th>
+                <th>False Neg (FN)</th>
               </tr>
             </thead>
             <tbody id="leaderboardBody">
-              <!-- Dynamically populated from API -->
+              <!-- Dynamically populated by app.js -->
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Confusion Matrices 2x2 Grid -->
-      <div class="section-title-row mt-6">
-        <h3 class="section-title">Confusion Matrices (Test Set: 300 Emails)</h3>
-      </div>
-      <div class="confusion-grid" id="confusionGrid">
-        <!-- Dynamically populated -->
-      </div>
-
-      <!-- Feature Importance Bar Chart -->
-      <div class="card glass-card mt-6">
+      <!-- Confusion Matrix Heatmaps -->
+      <div class="console-card benchmark-card">
         <div class="card-header">
-          <div>
-            <h3 class="card-title">Top 20 Feature Importances (Random Forest)</h3>
-            <p class="card-subtitle">Key linguistic tokens and metadata indicators separating phishing from legitimate emails.</p>
-          </div>
-          <span class="card-badge">FEATURE WEIGHTS</span>
-        </div>
-        <div class="features-bars-list" id="featureBarsList">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== VIEW 3: BATCH CSV SCANNER ==================== -->
-    <section class="view-panel" id="viewBatch" role="tabpanel" aria-labelledby="tabBtnBatch" hidden>
-      <div class="benchmarks-header">
-        <div class="hero-badge"><span class="badge-dot"></span> High-Throughput Bulk Processing</div>
-        <h2 class="hero-title">Batch Email CSV Scanner</h2>
-        <p class="hero-desc">
-          Upload a CSV containing email records (columns: <code>sender</code>, <code>subject</code>, <code>body</code>) to perform high-speed automated threat scanning and export classification reports.
-        </p>
-      </div>
-
-      <div class="batch-upload-grid">
-        <!-- Upload Dropzone -->
-        <div class="card glass-card upload-card">
-          <div class="dropzone" id="csvDropzone">
-            <input type="file" id="csvFileInput" accept=".csv" class="dropzone-input">
-            <div class="dropzone-content">
-              <div class="dropzone-icon">📁</div>
-              <h4 class="dropzone-title">Drag & Drop Email CSV File Here</h4>
-              <p class="dropzone-sub">or click to browse from your device</p>
-              <span class="dropzone-hint">Supports CSV with headers: sender, subject, body</span>
+          <div class="card-title-group">
+            <span class="card-step-badge">🎯</span>
+            <div>
+              <h2 class="card-title">Confusion Matrices (Holdout Test Set)</h2>
+              <p class="card-caption">Visualizing True vs. Predicted classifications for each machine learning model</p>
             </div>
-          </div>
-          <div class="upload-options-row">
-            <div class="model-select-wrapper">
-              <label for="batchModelSelect" class="form-label-inline">Scan Model:</label>
-              <select id="batchModelSelect" class="cyber-select">
-                <option value="Random Forest" selected>Random Forest</option>
-                <option value="Neural Network (MLP)">Neural Network MLP</option>
-                <option value="Naive Bayes">Naive Bayes</option>
-                <option value="Logistic Regression">Logistic Regression</option>
-              </select>
-            </div>
-            <button type="button" id="btnLoadSampleCsv" class="btn btn-secondary">
-              <span>📋</span> Load Sample CSV (6 Emails)
-            </button>
           </div>
         </div>
-
-        <!-- Batch Summary Stats -->
-        <div class="card glass-card stats-card" id="batchStatsCard">
-          <div class="card-header">
-            <h3 class="card-title">Batch Scan Overview</h3>
-            <span class="card-badge" id="batchStatusBadge">READY</span>
-          </div>
-          <div class="batch-metrics-grid">
-            <div class="b-stat">
-              <span class="b-stat-val" id="batchTotalCount">0</span>
-              <span class="b-stat-lbl">Total Scanned</span>
-            </div>
-            <div class="b-stat danger">
-              <span class="b-stat-val" id="batchPhishCount">0</span>
-              <span class="b-stat-lbl">Phishing Threats</span>
-            </div>
-            <div class="b-stat safe">
-              <span class="b-stat-val" id="batchLegitCount">0</span>
-              <span class="b-stat-lbl">Legitimate Emails</span>
-            </div>
-            <div class="b-stat warning">
-              <span class="b-stat-val" id="batchAvgScore">0%</span>
-              <span class="b-stat-lbl">Average Risk Score</span>
-            </div>
-          </div>
-          <div class="batch-export-row">
-            <button type="button" id="btnExportCsv" class="btn btn-primary" disabled>
-              <span>💾</span> Export Results to CSV
-            </button>
-          </div>
+        <div class="cm-grid" id="confusionGrid">
+          <!-- Dynamically populated by app.js -->
         </div>
       </div>
 
-      <!-- Batch Results Table -->
-      <div class="card glass-card mt-6">
+      <!-- Feature Importance Card -->
+      <div class="console-card benchmark-card">
         <div class="card-header">
-          <div class="table-header-left">
-            <h3 class="card-title">Scan Results Stream</h3>
-            <input type="text" id="batchSearchInput" class="cyber-input table-search" placeholder="Filter by subject, sender, or status...">
+          <div class="card-title-group">
+            <span class="card-step-badge">💡</span>
+            <div>
+              <h2 class="card-title">Top 20 NLP Feature Importances</h2>
+              <p class="card-caption">Gini importance weights extracted from the Random Forest ensemble classifier</p>
+            </div>
           </div>
-          <span class="card-badge" id="batchRowCountTag">0 Records</span>
         </div>
-        <div class="table-responsive">
-          <table class="cyber-table" id="batchResultsTable">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Sender</th>
-                <th>Subject</th>
-                <th>Classification</th>
-                <th>Threat Score</th>
-                <th>Confidence</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="batchTableBody">
-              <tr>
-                <td colspan="7" class="text-center text-muted">Upload a CSV or click "Load Sample CSV" to begin scanning.</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="features-container" id="featureBarsList">
+          <!-- Dynamically populated by app.js -->
         </div>
       </div>
-    </section>
 
-    <!-- ==================== VIEW 4: DEVELOPER API ==================== -->
-    <section class="view-panel" id="viewApi" role="tabpanel" aria-labelledby="tabBtnApi" hidden>
-      <div class="benchmarks-header">
-        <div class="hero-badge"><span class="badge-dot"></span> RESTful Machine Learning API</div>
-        <h2 class="hero-title">Developer Integration Playground</h2>
-        <p class="hero-desc">
-          Easily integrate the PhishGuard AI detection engine into your mail relays, security gateways, SIEM pipelines, or web applications.
-        </p>
-      </div>
-
-      <div class="api-grid">
-        <!-- Left: Endpoint Documentation -->
-        <div class="card glass-card">
-          <div class="card-header">
-            <h3 class="card-title">Available REST Endpoints</h3>
-            <a href="/docs" target="_blank" rel="noopener noreferrer" class="docs-link-btn">
-              <span>📖</span> Swagger UI Docs
-            </a>
-          </div>
-          <div class="endpoints-list">
-            <div class="endpoint-card">
-              <div class="ep-header">
-                <span class="http-badge post">POST</span>
-                <code class="ep-url">/api/predict</code>
-              </div>
-              <p class="ep-desc">Analyze a single email with NLP TF-IDF and structural metadata features.</p>
-            </div>
-
-            <div class="endpoint-card">
-              <div class="ep-header">
-                <span class="http-badge post">POST</span>
-                <code class="ep-url">/api/batch-predict</code>
-              </div>
-              <p class="ep-desc">Submit an array of emails for parallel bulk classification.</p>
-            </div>
-
-            <div class="endpoint-card">
-              <div class="ep-header">
-                <span class="http-badge post">POST</span>
-                <code class="ep-url">/api/upload-csv</code>
-              </div>
-              <p class="ep-desc">Upload a <code>.csv</code> file multipart/form-data for automated bulk scanning.</p>
-            </div>
-
-            <div class="endpoint-card">
-              <div class="ep-header">
-                <span class="http-badge get">GET</span>
-                <code class="ep-url">/api/models</code>
-              </div>
-              <p class="ep-desc">Retrieve benchmark metrics, confusion matrices, and feature importance rankings.</p>
-            </div>
-
-            <div class="endpoint-card">
-              <div class="ep-header">
-                <span class="http-badge get">GET</span>
-                <code class="ep-url">/api/health</code>
-              </div>
-              <p class="ep-desc">Healthcheck endpoint for load balancers and deployment monitoring.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Code Snippets & Playground -->
-        <div class="card glass-card">
-          <div class="card-header">
-            <h3 class="card-title">Integration Code Generator</h3>
-            <div class="snippet-lang-tabs" role="tablist">
-              <button class="snip-tab active" data-lang="curl">cURL</button>
-              <button class="snip-tab" data-lang="python">Python</button>
-              <button class="snip-tab" data-lang="js">JavaScript</button>
-            </div>
-          </div>
-
-          <div class="code-box-wrapper">
-            <pre class="code-box"><code id="codeSnippetDisplay"><!-- Injected dynamically --></code></pre>
-            <button type="button" id="btnCopyCode" class="btn-copy-code" title="Copy code to clipboard">
-              <span id="copyIcon">📋</span> <span id="copyLabel">Copy</span>
-            </button>
-          </div>
-
-          <!-- Sample JSON Payload & Response Preview -->
-          <div class="mt-4">
-            <h4 class="card-subtitle-bold">Sample API JSON Response Structure</h4>
-            <pre class="code-box json-response-box"><code>{
-  "is_phishing": true,
-  "prediction": "phishing",
-  "risk_score": 98.4,
-  "risk_level": "Critical Phishing Threat",
-  "risk_badge": "critical",
-  "confidence_percent": 98.4,
-  "selected_model": "Random Forest",
-  "recommendation": "Do not click any links or respond...",
-  "signals": [
-    { "name": "Sender Domain Reputation", "status": "danger" },
-    { "name": "Urgency & Coercion Language", "status": "danger" }
-  ],
-  "suspicious_tokens": ["urgent", "verify", "suspended", "urltoken"]
-}</code></pre>
-          </div>
-        </div>
-      </div>
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-container">
+  <!-- Global Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
       <div class="footer-left">
-        <p class="footer-text">
-          <strong>PhishGuard AI</strong> • Built on the Indian Institute of Computing and Technology (IICT) Phishing Email Detection Research Pipeline.
-        </p>
-        <p class="footer-subtext">
-          Stack: Python 3.11 • FastAPI • Scikit-Learn (Random Forest, MLP, Naive Bayes, Logistic Regression) • Vanilla CSS3 Glassmorphism
-        </p>
+        <span class="footer-brand">PhishGuard AI</span>
+        <span class="footer-sep">&bull;</span>
+        <span>IICT Phishing Email Detection Research</span>
       </div>
       <div class="footer-right">
-        <a href="/docs" target="_blank" rel="noopener noreferrer" class="footer-link">Swagger OpenAPI</a>
-        <a href="/redoc" target="_blank" rel="noopener noreferrer" class="footer-link">ReDoc</a>
+        <span>FastAPI &bull; Scikit-Learn &bull; TF-IDF &bull; IICT NLP Pipeline</span>
       </div>
     </div>
   </footer>
 
-  <!-- Application Logic -->
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
