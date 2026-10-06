@@ -1,82 +1,82 @@
 [
   {
-    "feature": "writing",
-    "importance": 0.13218
+    "feature": "wrote",
+    "importance": 0.03859
   },
   {
-    "feature": "writing because",
-    "importance": 0.09681
+    "feature": "aug",
+    "importance": 0.03552
+  },
+  {
+    "feature": "enron",
+    "importance": 0.02856
   },
   {
     "feature": "body_len",
-    "importance": 0.06734
+    "importance": 0.01787
   },
   {
-    "feature": "because",
-    "importance": 0.06268
+    "feature": "thanks",
+    "importance": 0.01733
   },
   {
-    "feature": "subject_len",
-    "importance": 0.0336
+    "feature": "pm",
+    "importance": 0.01598
   },
   {
-    "feature": "has_urgent_words",
-    "importance": 0.02919
+    "feature": "money",
+    "importance": 0.01252
   },
   {
-    "feature": "suspicious_tld",
-    "importance": 0.02645
+    "feature": "cc",
+    "importance": 0.01224
   },
   {
-    "feature": "account",
-    "importance": 0.02307
+    "feature": "university",
+    "importance": 0.01209
   },
   {
-    "feature": "confirm",
-    "importance": 0.0198
+    "feature": "list",
+    "importance": 0.01204
   },
   {
-    "feature": "let",
-    "importance": 0.01734
+    "feature": "im",
+    "importance": 0.01199
   },
   {
-    "feature": "urltoken",
-    "importance": 0.01396
+    "feature": "mailing list",
+    "importance": 0.01139
   },
   {
-    "feature": "payment",
-    "importance": 0.0106
+    "feature": "subject",
+    "importance": 0.01049
   },
   {
-    "feature": "num_links",
-    "importance": 0.01055
+    "feature": "http",
+    "importance": 0.01002
   },
   {
-    "feature": "up",
-    "importance": 0.01006
+    "feature": "attached",
+    "importance": 0.00965
   },
   {
-    "feature": "if",
-    "importance": 0.0097
+    "feature": "date",
+    "importance": 0.00943
   },
   {
-    "feature": "meeting",
-    "importance": 0.00858
+    "feature": "wed aug",
+    "importance": 0.00931
   },
   {
-    "feature": "device",
-    "importance": 0.00787
+    "feature": "file",
+    "importance": 0.00861
   },
   {
-    "feature": "log",
-    "importance": 0.00751
+    "feature": "click",
+    "importance": 0.00847
   },
   {
-    "feature": "required",
-    "importance": 0.00744
-  },
-  {
-    "feature": "reply email",
-    "importance": 0.0073
+    "feature": "life",
+    "importance": 0.00723
   }
 ]

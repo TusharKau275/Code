@@ -1,90 +1,91 @@
 {
+  "dataset_source": "phishing_email.csv",
   "models": {
     "Random Forest": {
-      "accuracy": 1.0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1_score": 1.0,
+      "accuracy": 0.9795,
+      "precision": 0.9824,
+      "recall": 0.9782,
+      "f1_score": 0.9803,
       "confusion_matrix": [
         [
-          150,
-          0
+          9711,
+          188
         ],
         [
-          0,
-          150
+          234,
+          10488
         ]
       ],
-      "tn": 150,
-      "fp": 0,
-      "fn": 0,
-      "tp": 150
+      "tn": 9711,
+      "fp": 188,
+      "fn": 234,
+      "tp": 10488
     },
     "Logistic Regression": {
-      "accuracy": 0.9967,
-      "precision": 1.0,
-      "recall": 0.9933,
-      "f1_score": 0.9967,
+      "accuracy": 0.9685,
+      "precision": 0.9657,
+      "recall": 0.974,
+      "f1_score": 0.9698,
       "confusion_matrix": [
         [
-          150,
-          0
+          9528,
+          371
         ],
         [
-          1,
-          149
+          279,
+          10443
         ]
       ],
-      "tn": 150,
-      "fp": 0,
-      "fn": 1,
-      "tp": 149
+      "tn": 9528,
+      "fp": 371,
+      "fn": 279,
+      "tp": 10443
     },
     "Naive Bayes": {
-      "accuracy": 1.0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1_score": 1.0,
+      "accuracy": 0.9399,
+      "precision": 0.9674,
+      "recall": 0.9153,
+      "f1_score": 0.9406,
       "confusion_matrix": [
         [
-          150,
-          0
+          9568,
+          331
         ],
         [
-          0,
-          150
+          908,
+          9814
         ]
       ],
-      "tn": 150,
-      "fp": 0,
-      "fn": 0,
-      "tp": 150
+      "tn": 9568,
+      "fp": 331,
+      "fn": 908,
+      "tp": 9814
     },
     "Neural Network (MLP)": {
-      "accuracy": 1.0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1_score": 1.0,
+      "accuracy": 0.9795,
+      "precision": 0.9752,
+      "recall": 0.9856,
+      "f1_score": 0.9804,
       "confusion_matrix": [
         [
-          150,
-          0
+          9630,
+          269
         ],
         [
-          0,
-          150
+          154,
+          10568
         ]
       ],
-      "tn": 150,
-      "fp": 0,
-      "fn": 0,
-      "tp": 150
+      "tn": 9630,
+      "fp": 269,
+      "fn": 154,
+      "tp": 10568
     }
   },
-  "test_size": 300,
-  "train_size": 900,
-  "total_emails": 1200,
-  "feature_count": 1302,
+  "test_size": 20621,
+  "train_size": 61863,
+  "total_emails": 82484,
+  "feature_count": 1506,
   "meta_cols": [
     "num_links",
     "num_exclamations",
