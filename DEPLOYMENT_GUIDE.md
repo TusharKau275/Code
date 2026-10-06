@@ -276,6 +276,32 @@ docker compose down
 
 ---
 
+### Deploying to Vercel
+
+[Vercel](https://vercel.com) supports deploying both the static frontend and the FastAPI backend as a serverless Python function using the included `vercel.json`.
+
+#### Step-by-Step Vercel Deployment:
+1. Ensure your trained models in `backend/models/*.joblib` are committed to your Git repository (Vercel serverless has a read-only filesystem at runtime).
+2. Install the **Vercel CLI** (or connect via GitHub):
+   ```bash
+   npm i -g vercel
+   ```
+3. In your project directory (`phising-email-detection/Code`), run:
+   ```bash
+   vercel
+   ```
+4. Follow the interactive prompts:
+   - *Set up and deploy?* **Y**
+   - *Which scope?* Select your Vercel account
+   - *Link to existing project?* **N**
+   - *What's your project's name?* `phishguard-ai`
+   - *In which directory is your code located?* `./`
+5. Vercel will deploy using the included [vercel.json](file:///d:/IICT%20Files/phising-email-detection/Code/vercel.json) and output your live production URL (e.g., `https://phishguard-ai.vercel.app`).
+
+> **Pro Tip (Split Architecture)**: For high-traffic enterprise setups, you can also deploy `frontend/` on Vercel's global Edge CDN, and deploy `backend/` on Render or Docker, configuring `API_BASE` in `frontend/app.js` to point to your backend domain.
+
+---
+
 ### Deploying to Fly.io
 
 1. Install the `flyctl` CLI:
